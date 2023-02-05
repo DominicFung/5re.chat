@@ -1,7 +1,6 @@
 # `@domfung/5re.chat`
 
 > `@domfung/5re.chat` is an open source chat (react component) you can integrate into your frontend that hooks up to discord as a chatbot. Now you can chat directly with customers on your website directly on your discord channel!
-
 > The backend is hosted on AWS (Repo TBD). Hosting is not cheap. Your support is greatly appreciated on Patreon!
 
 [![npm version](https://badge.fury.io/js/%40apollo%2Fserver.svg)](https://badge.fury.io/js/%40apollo%2Fserver)
@@ -35,3 +34,4 @@ return (
 ## References
 
 <https://www.youtube.com/watch?v=XKfeczZyEzc&ab_channel=FrontEndMastery>
+<https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages>

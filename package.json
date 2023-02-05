@@ -1,7 +1,7 @@
 {
-  "name": "5re.chat",
+  "name": "@domfung/5re.chat",
   "private": false,
-  "version": "0.0.0",
+  "version": "1.0.4",
   "type": "module",
   "main": "dist/index/umd.js",
   "module": "dist/index.es.js",
@@ -15,12 +15,16 @@
   "files": [
     "./dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DominicFung/5re.chat.git"
+  },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && cp README.md ./dist",
     "prepare": "npm run build",
     "preview": "vite preview"
   },
