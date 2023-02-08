@@ -1,1 +1,1 @@
-export { Chat, Fab } from './src'
+export { Chat, Fab } from './src/components'

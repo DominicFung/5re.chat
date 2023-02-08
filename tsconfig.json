@@ -13,8 +13,9 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": true,
+    "declaration": true,
+    "typeRoots": ["./dist/index.d.ts", "node_modules/@types"],
     "noEmit": true,
-    "typeRoots": ["./dist/index.d.ts"],
     "jsx": "react-jsx"
   },
   "include": ["src", "./index.ts"],

@@ -17,13 +17,13 @@ npm i @domfung/5re.chat
 to use:
 
 ```typescript
-import { 5re.chat } from '@domfung/5re.chat'
+import { FireChat } from '@domfung/5re.chat'
 
 ...
 
 return (
   ...
-    <5re.chat storeId="<YOUR STORE ID>" enableCookie={true} />
+    <FireChat storeId="<YOUR STORE ID>" />
   </>
 )
 
