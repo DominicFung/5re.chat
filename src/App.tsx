@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import './App.css'
 import { Chat } from './components/chat'
 import { Fab } from './components/fab'
 
