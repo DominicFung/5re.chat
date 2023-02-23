@@ -14,18 +14,21 @@
     }
   },
   "files": [
-    "/dist", "dist/style.css"
+    "/dist",
+    "dist/style.css"
   ],
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "./scripts/update-schema.sh && vite",
     "build": "tsc && vite build && cp README.md ./dist",
     "prepare": "npm run build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "update": "./scripts/update-schema.sh"
   },
   "dependencies": {
+    "aws-amplify": "^5.0.15",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwindcss": "^3.2.4"

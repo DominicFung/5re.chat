@@ -4,6 +4,14 @@ import dts from "vite-plugin-dts";
 import path from "path";
 
 export default defineConfig({
+  define: {
+    "global": {}
+  },
+  resolve: {
+    alias: {
+      './runtimeConfig': './runtimeConfig.browser',
+    },
+  },
   build: {
     lib: {
       entry: path.resolve(__dirname, "index.ts"),
