@@ -14,11 +14,13 @@ export type _User = {
 export type _App = {
   __typename: "_App",
   appId: string,
+  userId: string,
   appName: string,
   apiKey: string,
   unseal: string,
   discordGuildId: string,
   sessionTimeout: number,
+  active: boolean,
 };
 
 export type Message = {
@@ -74,23 +76,25 @@ export type CreateUserMutation = {
     apps:  Array< {
       __typename: "_App",
       appId: string,
+      userId: string,
       appName: string,
       apiKey: string,
       unseal: string,
       discordGuildId: string,
       sessionTimeout: number,
+      active: boolean,
     } | null >,
   },
 };
 
-export type UpdateUserDiscordGuildMutationVariables = {
+export type AddAppMutationVariables = {
   masterSecret: string,
-  appId: string,
-  discordGuildId: string,
+  userId: string,
+  appName?: string | null,
 };
 
-export type UpdateUserDiscordGuildMutation = {
-  updateUserDiscordGuild:  {
+export type AddAppMutation = {
+  addApp:  {
     __typename: "_User",
     userId: string,
     githubId: string,
@@ -99,22 +103,83 @@ export type UpdateUserDiscordGuildMutation = {
     apps:  Array< {
       __typename: "_App",
       appId: string,
+      userId: string,
       appName: string,
       apiKey: string,
       unseal: string,
       discordGuildId: string,
       sessionTimeout: number,
+      active: boolean,
     } | null >,
   },
 };
 
-export type RefreshUserApiKeyMutationVariables = {
+export type RemoveAppMutationVariables = {
   masterSecret: string,
   appId: string,
 };
 
-export type RefreshUserApiKeyMutation = {
-  refreshUserApiKey: string,
+export type RemoveAppMutation = {
+  removeApp:  {
+    __typename: "_User",
+    userId: string,
+    githubId: string,
+    username: string,
+    avatarUrl: string,
+    apps:  Array< {
+      __typename: "_App",
+      appId: string,
+      userId: string,
+      appName: string,
+      apiKey: string,
+      unseal: string,
+      discordGuildId: string,
+      sessionTimeout: number,
+      active: boolean,
+    } | null >,
+  },
+};
+
+export type UpdateAppMutationVariables = {
+  masterSecret: string,
+  appId: string,
+  discordGuildId?: string | null,
+  appName?: string | null,
+  active?: boolean | null,
+  sessionTimeout?: number | null,
+};
+
+export type UpdateAppMutation = {
+  updateApp:  {
+    __typename: "_App",
+    appId: string,
+    userId: string,
+    appName: string,
+    apiKey: string,
+    unseal: string,
+    discordGuildId: string,
+    sessionTimeout: number,
+    active: boolean,
+  },
+};
+
+export type RefreshApiKeyMutationVariables = {
+  masterSecret: string,
+  appId: string,
+};
+
+export type RefreshApiKeyMutation = {
+  refreshApiKey:  {
+    __typename: "_App",
+    appId: string,
+    userId: string,
+    appName: string,
+    apiKey: string,
+    unseal: string,
+    discordGuildId: string,
+    sessionTimeout: number,
+    active: boolean,
+  },
 };
 
 export type AddOwnerMessageMutationVariables = {
@@ -166,11 +231,13 @@ export type GetUserQuery = {
     apps:  Array< {
       __typename: "_App",
       appId: string,
+      userId: string,
       appName: string,
       apiKey: string,
       unseal: string,
       discordGuildId: string,
       sessionTimeout: number,
+      active: boolean,
     } | null >,
   },
 };

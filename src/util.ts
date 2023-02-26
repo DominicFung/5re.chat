@@ -1,9 +1,20 @@
 const tailwind = {
+  "hr": { height: 0, color: "inherit", borderTopWidth: "1px" },
+
   "fixed": { position: "fixed" },
+  "absolute": { position: "absolute" },
+  "relative": { position: "relative" },
+
   "bottom-0": { bottom: "0px" },
+  "bottom-1": { bottom: "0.25rem" },
+  "bottom-1.5": { bottom: "0.375rem" },
   "bottom-5": { bottom: "1.25rem" },
+
+  "right-2": { right: "0.5rem" },
+  "right-2.5": { right: "0.625rem" },
   "right-5": { right: "1.25rem" },
   "right-10": { right: "2.5rem" },
+
   "mt-2": { marginTop: "0.5rem" },
   "ml-auto": { marginLeft: "auto" },
   "inline-block": { display: "inline-block" },
@@ -34,6 +45,7 @@ const tailwind = {
 
   "p-0": { padding: 0 },
   "p-1": { padding: "0.25rem" },
+  "p-2": { padding: "0.5rem" },
   "p-3": { padding: "0.75rem" },
   "p-4": { padding: "1rem" },
   "px-3": { 
@@ -114,6 +126,11 @@ const tailwind = {
   "shadow": {
     "--tw-shadow": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
     "--tw-shadow-colored": "0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color)",
+    boxShadow: "var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)"
+  },
+  "shadow-xl": {
+    "--tw-shadow": "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+    "--tw-shadow-colored": "0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color)",
     boxShadow: "var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow)"
   },
   "transition": {

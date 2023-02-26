@@ -8,6 +8,7 @@ import { GraphQLResult } from '@aws-amplify/api'
 
 import * as m from '../graphql/mutations'
 import { Convo, _Message } from "../API"
+import { Message } from "../type"
 
 
 interface ChatProps {
@@ -19,7 +20,7 @@ interface ChatProps {
 
 export const Chat = (props: ChatProps) => {
   const [ loading, setLoading ] = useState(true)
-  const [ messages, setMessages ] = useState<_Message[]>([])
+  const [ messages, setMessages ] = useState<Message[]>([])
 
   const [ text, setText ] = useState("")
   const [ convo, setConvo ] = useState<Convo>()
@@ -44,16 +45,36 @@ export const Chat = (props: ChatProps) => {
   }
 
   const message = async (message: string) => {
+    const msgPosition = messages.length as number
+    messages.push({ sendDate: "", userType: "CUSTOMER", message: message, status: "PENDING" } as Message)
+    setMessages([...messages ])
+
     const d = await API.graphql(graphqlOperation(m.addCustomerMessage, {
       sessionToken: convo?.sessionToken, message
-    }))
+    })) as GraphQLResult<{ addCustomerMessage: string }>
     console.log(d)
 
-    setMessages([...messages, {
-      sendDate: "",
-      userType: "CUSTOMER",
-      message: message
-    } as _Message])
+    if (!d.data?.addCustomerMessage) {
+      messages[msgPosition].status = 'ERROR'
+      console.log(messages)
+      setMessages([...messages ])
+      return
+    } else if (d.data?.addCustomerMessage !== "OK" && d.data?.addCustomerMessage.startsWith("Fe26.2**") && convo) {
+      messages[msgPosition].status = 'OK'
+      convo.sessionToken = d.data?.addCustomerMessage
+      console.log(`new Session: ${convo.sessionToken}`)
+      console.log(convo)
+      setConvo(convo)
+      setMessages([...messages ])
+    } else if ( d.data?.addCustomerMessage === "OK" ) {
+      messages[msgPosition].status = 'OK'
+      console.log(messages)
+      setMessages([...messages ])
+    } else {
+      messages[msgPosition].status = 'ERROR'
+      console.log(messages)
+      setMessages([...messages ])
+    }
   }
 
   useEffect(() => {
@@ -80,13 +101,13 @@ export const Chat = (props: ChatProps) => {
           </div>
           
           <div style={css("flex flex-col flex-grow h-0 p-4 overflow-auto")}>
-            { messages.map((m) => {
+            { messages.map((m, i) => {
               if (m.userType === "OWNER") {
                 return (
-                  <div className="space-x-3" style={css("flex w-full mt-2 space-x-3 max-w-xs")}>
-                    <div style={css("flex-shrink-0 h-10 w-10 rounded-full bg-gray-300")}></div>
+                  <div key={i} style={css("flex w-full mt-2 space-x-3 max-w-xs")}>
+                    <div className="mx-2" style={css("flex-shrink-0 h-10 w-10 rounded-full bg-gray-300")}></div>
                     <div>
-                      <div style={css("bg-gray-300 p-3 rounded-r-lg rounded-bl-lg")}>
+                      <div style={css("bg-gray-300 p-2 rounded-r-lg rounded-bl-lg")}>
                         <p style={css("text-sm")}>{m.message}</p>
                       </div>
                       <span style={css("text-xs text-gray-500 leading-none")}>{m.sendDate}</span>
@@ -95,14 +116,14 @@ export const Chat = (props: ChatProps) => {
                 )
               } else if (m.userType === "CUSTOMER") {
                 return (
-                  <div style={css("flex w-full mt-2 space-x-3 max-w-xs ml-auto justify-end")}>
-                    <div className="mx-3">
-                      <div style={css("bg-blue-600 text-white p-3 rounded-l-lg rounded-br-lg")}>
+                  <div key={i} style={css("flex w-full mt-2 max-w-xs ml-auto justify-end")}>
+                    <div>
+                      <div style={css("bg-blue-600 text-white p-2 rounded-l-lg rounded-br-lg")}>
                         <p style={css("text-sm")}>{m.message}</p>
                       </div>
                       <span style={css("text-xs text-gray-500 leading-none")}>{m.sendDate}</span>
                     </div>
-                    <div className="mx-3" style={css("flex-shrink-0 h-10 w-10 rounded-full bg-gray-300")}></div>
+                    <div className="mx-2" style={css("flex-shrink-0 h-10 w-10 rounded-full bg-gray-300")}></div>
                   </div>
                 )
               }
@@ -115,7 +136,7 @@ export const Chat = (props: ChatProps) => {
             <label htmlFor="search" className="mb-2 text-sm font-medium text-gray-900 sr-only">Type your message…</label>
             <div className="relative">
                 <input type="search" id="search" placeholder="Type your message…" value={text} onChange={(e) => {setText(e.currentTarget.value)}}
-                  className="block w-full p-4 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500" />
+                  className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500" />
                 <button type="submit" onClick={() => { message(text) }}
                     className="text-white absolute right-2.5 bottom-1.5 bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">

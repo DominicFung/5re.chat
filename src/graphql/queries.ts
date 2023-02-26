@@ -11,11 +11,13 @@ export const getUser = /* GraphQL */ `
       avatarUrl
       apps {
         appId
+        userId
         appName
         apiKey
         unseal
         discordGuildId
         sessionTimeout
+        active
       }
     }
   }
