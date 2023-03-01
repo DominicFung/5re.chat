@@ -1,7 +1,7 @@
 {
   "name": "@domfung/5re.chat",
   "private": false,
-  "version": "1.0.12",
+  "version": "1.0.13",
   "type": "module",
   "main": "dist/index.umd.js",
   "module": "dist/index.es.js",
@@ -34,6 +34,9 @@
     "tailwindcss": "^3.2.4"
   },
   "devDependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
+    "@types/cryptr": "^4.0.1",
     "@types/react": "^18.0.27",
     "@types/react-dom": "^18.0.10",
     "@vitejs/plugin-react-swc": "^3.0.0",

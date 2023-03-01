@@ -1,6 +1,5 @@
-import React, { CSSProperties } from "react"
+import React from "react"
 import { css } from "../util"
-//import s from './fab.module.css'
 
 interface FabProps {
   setOpen: (b: boolean) => void

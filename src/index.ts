@@ -1,1 +1,1 @@
-export { Chat, Fab } from './components'
+export { FireChat, Fab } from './components'

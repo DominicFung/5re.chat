@@ -25,11 +25,13 @@ export type _App = {
 
 export type Message = {
   __typename: "Message",
-  encrypted: string,
+  hash: string,
+  message: string,
 };
 
 export type Convo = {
   __typename: "Convo",
+  hash: string,
   messageToken: string,
   sessionToken: string,
 };
@@ -191,7 +193,8 @@ export type AddOwnerMessageMutationVariables = {
 export type AddOwnerMessageMutation = {
   addOwnerMessage:  {
     __typename: "Message",
-    encrypted: string,
+    hash: string,
+    message: string,
   },
 };
 
@@ -202,6 +205,7 @@ export type CreateSessionMutationVariables = {
 export type CreateSessionMutation = {
   createSession:  {
     __typename: "Convo",
+    hash: string,
     messageToken: string,
     sessionToken: string,
   },
@@ -287,17 +291,19 @@ export type GetMessagesQueryVariables = {
 export type GetMessagesQuery = {
   getMessages:  Array< {
     __typename: "Message",
-    encrypted: string,
+    hash: string,
+    message: string,
   } | null >,
 };
 
 export type OnMessageSubscriptionVariables = {
-  sessionToken: string,
+  hash: string,
 };
 
 export type OnMessageSubscription = {
-  onMessage:  {
+  onMessage?:  {
     __typename: "Message",
-    encrypted: string,
-  },
+    hash: string,
+    message: string,
+  } | null,
 };

@@ -1,2 +1,2 @@
 import './src/index.css'
-export { Chat, Fab } from './src/components'
+export { FireChat, Fab } from './src/components'

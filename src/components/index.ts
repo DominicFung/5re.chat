@@ -1,2 +1,2 @@
 export { Fab } from './fab'
-export { Chat } from './chat'
+export { FireChat } from './chat'

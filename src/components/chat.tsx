@@ -1,29 +1,46 @@
 import React, { useEffect, useState } from "react"
-import { css } from "../util"
+import { css, getBgColor, getTextColor, TailwindBg } from "../util"
 
 // @ts-ignore
 import awsConfig from '../aws-exports'
 import { Amplify, API, graphqlOperation } from 'aws-amplify'
-import { GraphQLResult } from '@aws-amplify/api'
+import { GraphQLResult, GraphQLSubscription } from '@aws-amplify/api'
 
 import * as m from '../graphql/mutations'
-import { Convo, _Message } from "../API"
+import { onMessage } from '../graphql/subscriptions'
+import { Convo, _Message, OnMessageSubscription } from "../API"
 import { Message } from "../type"
 
-
-interface ChatProps {
-  open: boolean
-  setOpen: (b: boolean) => void
+interface FireChatProps {
   apiKey?: string | undefined
   sessionToken?: string | undefined
+  control?: { 
+    open: boolean
+    setOpen: (b: boolean) => void
+  }
+  style?: {
+    ownerMsgBg?: TailwindBg
+    customerMsgBg?: TailwindBg
+    chat?: TailwindBg
+    chatBg?: TailwindBg
+    notation: TailwindBg
+  }
+  convoStarter?: string,
+  avatarImageUrl?: string
 }
 
-export const Chat = (props: ChatProps) => {
+export const FireChat = (props: FireChatProps) => {
+  const [ open, _setOpen ] = useState(props.control?.open || false)
   const [ loading, setLoading ] = useState(true)
-  const [ messages, setMessages ] = useState<Message[]>([])
+
+  const [ convo, setConvo ] = useState<Convo>()
+  const [ ownerMsg, setOwnerMsg ] = useState<Message>()
+  const [ messages, setMessages ] = useState<Message[]>([
+    { sendDate: "", userType: "OWNER", message: "This is a test of a longer than normal message. Yea, this is so cool, what are we going to do.", status: "OK" } as Message,
+    { sendDate: "", userType: "CUSTOMER", message: "This is a test", status: "OK" } as Message,
+  ])
 
   const [ text, setText ] = useState("")
-  const [ convo, setConvo ] = useState<Convo>()
 
   const getSessionTokenUsingApiKey = async () => {
     console.warn(
@@ -40,11 +57,42 @@ export const Chat = (props: ChatProps) => {
     })) as GraphQLResult<{createSession: Convo}>
     
     console.log(d)
-    if (d.data?.createSession)
+    if (d.data?.createSession) {
       setConvo( d.data?.createSession )
+      setLoading(false)
+    }
   }
 
-  const message = async (message: string) => {
+  const subscribe = async (hash: string) => {
+    const sub = API.graphql<GraphQLSubscription<OnMessageSubscription>>(
+      graphqlOperation(onMessage, { hash })
+    ).subscribe({
+      next: ({provider, value}) => {
+        console.log("=== MESSAGE INCOMING ===")
+        console.log(JSON.stringify(provider))
+        console.log(JSON.stringify(value))
+
+        const msg = value.data?.onMessage?.message
+        console.log(msg)
+        console.log(convo?.messageToken)
+
+        if (!msg) { console.error("No encrypted message"); return }
+        if (!convo?.messageToken) { console.error("No messageToken"); return }
+        incomingMessage(msg)
+      },
+      error: (error) => console.warn(error)
+    })
+    console.log(JSON.stringify(sub))
+  }
+
+  const incomingMessage = async (message: string) => {
+    console.log(`INCOMING ==> "${message}"`)
+    console.log(messages)
+    setOwnerMsg({ sendDate: "", userType: "OWNER", message: message, status: "OK" } as Message)
+  }
+
+  const outgoingMessage = async (message: string) => {
+    setText("")
     const msgPosition = messages.length as number
     messages.push({ sendDate: "", userType: "CUSTOMER", message: message, status: "PENDING" } as Message)
     setMessages([...messages ])
@@ -62,7 +110,8 @@ export const Chat = (props: ChatProps) => {
     } else if (d.data?.addCustomerMessage !== "OK" && d.data?.addCustomerMessage.startsWith("Fe26.2**") && convo) {
       messages[msgPosition].status = 'OK'
       convo.sessionToken = d.data?.addCustomerMessage
-      console.log(`new Session: ${convo.sessionToken}`)
+      console.log(`new Session: ${convo.sessionToken} / hash: ${convo.hash}`)
+      subscribe(convo.hash)
       console.log(convo)
       setConvo(convo)
       setMessages([...messages ])
@@ -77,23 +126,45 @@ export const Chat = (props: ChatProps) => {
     }
   }
 
+  const setOpen = (b: boolean) => { props.control ? props.control.setOpen(b) : _setOpen(b) }
+
   useEffect(() => {
-    if (props.open && props.apiKey && !convo) {
+    if (open && props.apiKey && !convo) {
       getSessionTokenUsingApiKey()
     }
-  }, [props, convo])
+  }, [open, props, convo])
+
+  useEffect(() => {
+    if (ownerMsg) { setMessages([...messages, ownerMsg]) }
+  }, [ownerMsg])
+
+  useEffect(() => {
+    if (props.control) { _setOpen(props.control.open) }
+  }, [props.control?.open])
 
   return (<>
-    {props.open && <div style={css("fixed bottom-0 right-10 w-80")}>
+    { props.control && 
+      <div style={css("fixed bottom-5 right-5")}>
+        <button onClick={() => { setOpen(true) }}
+          style={css(`p-0 w-16 h-16 ${getBgColor(props.style?.chat, 600)} rounded-full hover:bg-blue-700 active:shadow-lg shadow transition ease-in duration-200 focus:outline-none text-white`)}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" style={css("w-6 h-6 inline-block")}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+          </svg>
+        </button>
+      </div>
+    }
+    { open && 
+      <div style={css("fixed bottom-0 right-10 w-80")}>
         <div style={css("flex flex-col flex-grow w-full max-w-xl bg-white shadow-xl rounded-t-lg overflow-hidden h-96")}>
-          <div style={css("flex flex-row bg-blue-500")}>
+          <div style={css(`flex flex-row ${getBgColor(props.style?.chat, 600)}`)}>
             <div style={css("flex-grow")} />
-            <button style={css("p-1 text-white")} onClick={() => { props.setOpen(false) }}>
+            <button style={css("p-1 text-white")} onClick={() => { setOpen(false) }}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" style={css("w-6 h-6")}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M18 12H6" />
               </svg>
             </button>
-            <button style={css("p-1 text-white")} onClick={() => { props.setOpen(false) }}>
+            <button style={css("p-1 text-white")} onClick={() => { setOpen(false) }}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" style={css("w-6 h-6")}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
@@ -102,15 +173,25 @@ export const Chat = (props: ChatProps) => {
           
           <div style={css("flex flex-col flex-grow h-0 p-4 overflow-auto")}>
             { messages.map((m, i) => {
+              let avatar = props.avatarImageUrl ? {
+                backgroundImage: `url(${props.avatarImageUrl})`,
+                backgroundSize: "cover",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center center"
+              } : {}
               if (m.userType === "OWNER") {
                 return (
-                  <div key={i} style={css("flex w-full mt-2 space-x-3 max-w-xs")}>
-                    <div className="mx-2" style={css("flex-shrink-0 h-10 w-10 rounded-full bg-gray-300")}></div>
+                  <div key={i} style={css("flex w-full mt-2 max-w-xs")}>
+                    {props.avatarImageUrl && <div style={{
+                        ...css(`mx-2 flex-shrink-0 h-10 w-10 rounded-full ${getBgColor(props.style?.ownerMsgBg, 300)}`), 
+                        ...avatar
+                      }}>
+                    </div>}
                     <div>
-                      <div style={css("bg-gray-300 p-2 rounded-r-lg rounded-bl-lg")}>
+                      <div style={css(`${getBgColor(props.style?.ownerMsgBg, 300)} p-2 rounded-r-lg rounded-bl-lg`)}>
                         <p style={css("text-sm")}>{m.message}</p>
                       </div>
-                      <span style={css("text-xs text-gray-500 leading-none")}>{m.sendDate}</span>
+                      <span style={css(`text-xs ${getTextColor(props.style?.notation, 200)} leading-none`)}>{m.sendDate}</span>
                     </div>
                   </div>
                 )
@@ -118,35 +199,37 @@ export const Chat = (props: ChatProps) => {
                 return (
                   <div key={i} style={css("flex w-full mt-2 max-w-xs ml-auto justify-end")}>
                     <div>
-                      <div style={css("bg-blue-600 text-white p-2 rounded-l-lg rounded-br-lg")}>
+                      <div style={css(`${getBgColor(props.style?.customerMsgBg, 700)} text-white p-2 rounded-l-lg rounded-br-lg`)}>
                         <p style={css("text-sm")}>{m.message}</p>
                       </div>
-                      <span style={css("text-xs text-gray-500 leading-none")}>{m.sendDate}</span>
+                      <span style={css(`text-xs ${getTextColor(props.style?.notation, 200)} italic leading-none`)}>
+                        {m.status==="PENDING" && "sending .."}
+                      </span>
                     </div>
-                    <div className="mx-2" style={css("flex-shrink-0 h-10 w-10 rounded-full bg-gray-300")}></div>
                   </div>
                 )
               }
-
               return <></>
             })}
           </div>
           
-          <div style={css("bg-blue-300 p-4")}>
-            <label htmlFor="search" className="mb-2 text-sm font-medium text-gray-900 sr-only">Type your message…</label>
-            <div className="relative">
-                <input type="search" id="search" placeholder="Type your message…" value={text} onChange={(e) => {setText(e.currentTarget.value)}}
-                  className="block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded-lg bg-white focus:ring-blue-500 focus:border-blue-500" />
-                <button type="submit" onClick={() => { message(text) }}
-                    className="text-white absolute right-2.5 bottom-1.5 bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="w-6 h-6">
+          <div style={css(`${getBgColor(props.style?.chat, 600)} p-1`)}>
+            <label htmlFor="search" style={css("mb-2 text-sm font-medium text-gray-900 sr-only")}>Type your message…</label>
+            <div style={css("relative")}>
+                <input type="search" disabled={loading} id="search" placeholder="Type your message…" value={text} onChange={(e) => {setText(e.currentTarget.value)}}
+                  style={css("block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded bg-white focus:ring-blue-500 focus:border-blue-500")}
+                  onKeyDown={ (e) => { if (e.key === "Enter") { outgoingMessage(text) } } }
+                />
+                <button type="submit" onClick={() => { outgoingMessage(text) }}
+                    style={css(`${getTextColor(props.style?.chat, 600)} absolute right-0 bottom-0 font-medium text-sm px-2 py-1.5`)}>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" style={css("w-6 h-6")}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                   </svg>
                 </button>
             </div>
-            {/* <input style={css("flex items-center h-10 w-full rounded px-3 text-sm")} type="text" placeholder="Type your message…" /> */}
           </div>
         </div>
-      </div>}
+      </div>
+    }
   </>)
 }
