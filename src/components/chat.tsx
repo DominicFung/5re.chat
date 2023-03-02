@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { css, getBgColor, getTextColor, TailwindBg } from "../util"
+import { css, getBgColor, getBorderColor, getTextColor, TwColor } from "../util"
 
 // @ts-ignore
 import awsConfig from '../aws-exports'
@@ -19,11 +19,10 @@ interface FireChatProps {
     setOpen: (b: boolean) => void
   }
   style?: {
-    ownerMsgBg?: TailwindBg
-    customerMsgBg?: TailwindBg
-    chat?: TailwindBg
-    chatBg?: TailwindBg
-    notation: TailwindBg
+    owner?: { messageBg?: TwColor, text?: TwColor }
+    customer?: { messageBg?: TwColor, text?: TwColor }
+    chat?: { main?: TwColor, bg?: TwColor, text?: TwColor }
+    notation?: TwColor
   }
   convoStarter?: string,
   avatarImageUrl?: string
@@ -35,10 +34,10 @@ export const FireChat = (props: FireChatProps) => {
 
   const [ convo, setConvo ] = useState<Convo>()
   const [ ownerMsg, setOwnerMsg ] = useState<Message>()
-  const [ messages, setMessages ] = useState<Message[]>([
-    { sendDate: "", userType: "OWNER", message: "This is a test of a longer than normal message. Yea, this is so cool, what are we going to do.", status: "OK" } as Message,
-    { sendDate: "", userType: "CUSTOMER", message: "This is a test", status: "OK" } as Message,
-  ])
+  const [ messages, setMessages ] = useState<Message[]>(props.convoStarter ? [
+    { sendDate: "", userType: "OWNER", message: props.convoStarter, status: "OK" } as Message,
+//    { sendDate: "", userType: "CUSTOMER", message: "This is a test", status: "OK" } as Message,
+  ]: [])
 
   const [ text, setText ] = useState("")
 
@@ -143,10 +142,10 @@ export const FireChat = (props: FireChatProps) => {
   }, [props.control?.open])
 
   return (<>
-    { props.control && 
+    { !props.control && 
       <div style={css("fixed bottom-5 right-5")}>
         <button onClick={() => { setOpen(true) }}
-          style={css(`p-0 w-16 h-16 ${getBgColor(props.style?.chat, 600)} rounded-full hover:bg-blue-700 active:shadow-lg shadow transition ease-in duration-200 focus:outline-none text-white`)}
+          style={css(`p-0 w-16 h-16 ${getBgColor(props.style?.chat?.main, 600)} rounded-full hover:bg-blue-700 active:shadow-lg shadow transition ease-in duration-200 focus:outline-none text-white`)}
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" style={css("w-6 h-6 inline-block")}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
@@ -156,8 +155,8 @@ export const FireChat = (props: FireChatProps) => {
     }
     { open && 
       <div style={css("fixed bottom-0 right-10 w-80")}>
-        <div style={css("flex flex-col flex-grow w-full max-w-xl bg-white shadow-xl rounded-t-lg overflow-hidden h-96")}>
-          <div style={css(`flex flex-row ${getBgColor(props.style?.chat, 600)}`)}>
+        <div style={css(`flex flex-col flex-grow w-full max-w-xl ${getBgColor(props.style?.chat?.bg, 50)} shadow-xl rounded-t-lg overflow-hidden h-96`)}>
+          <div style={css(`flex flex-row ${getBgColor(props.style?.chat?.main, 600)}`)}>
             <div style={css("flex-grow")} />
             <button style={css("p-1 text-white")} onClick={() => { setOpen(false) }}>
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" style={css("w-6 h-6")}>
@@ -183,12 +182,12 @@ export const FireChat = (props: FireChatProps) => {
                 return (
                   <div key={i} style={css("flex w-full mt-2 max-w-xs")}>
                     {props.avatarImageUrl && <div style={{
-                        ...css(`mx-2 flex-shrink-0 h-10 w-10 rounded-full ${getBgColor(props.style?.ownerMsgBg, 300)}`), 
+                        ...css(`mx-2 flex-shrink-0 h-10 w-10 rounded-full ${getBgColor(props.style?.owner?.messageBg, 300)}`), 
                         ...avatar
                       }}>
                     </div>}
                     <div>
-                      <div style={css(`${getBgColor(props.style?.ownerMsgBg, 300)} p-2 rounded-r-lg rounded-bl-lg`)}>
+                      <div style={css(`${getBgColor(props.style?.owner?.messageBg, 300)} ${getTextColor(props.style?.customer?.text, 900)} p-2 rounded-r-lg rounded-bl-lg`)}>
                         <p style={css("text-sm")}>{m.message}</p>
                       </div>
                       <span style={css(`text-xs ${getTextColor(props.style?.notation, 200)} leading-none`)}>{m.sendDate}</span>
@@ -199,7 +198,7 @@ export const FireChat = (props: FireChatProps) => {
                 return (
                   <div key={i} style={css("flex w-full mt-2 max-w-xs ml-auto justify-end")}>
                     <div>
-                      <div style={css(`${getBgColor(props.style?.customerMsgBg, 700)} text-white p-2 rounded-l-lg rounded-br-lg`)}>
+                      <div style={css(`${getBgColor(props.style?.customer?.messageBg, 700)} ${getTextColor(props.style?.customer?.text, 50)} p-2 rounded-l-lg rounded-br-lg`)}>
                         <p style={css("text-sm")}>{m.message}</p>
                       </div>
                       <span style={css(`text-xs ${getTextColor(props.style?.notation, 200)} italic leading-none`)}>
@@ -213,15 +212,15 @@ export const FireChat = (props: FireChatProps) => {
             })}
           </div>
           
-          <div style={css(`${getBgColor(props.style?.chat, 600)} p-1`)}>
+          <div style={css(`${getBgColor(props.style?.chat?.main, 600)} p-1`)}>
             <label htmlFor="search" style={css("mb-2 text-sm font-medium text-gray-900 sr-only")}>Type your message…</label>
             <div style={css("relative")}>
                 <input type="search" disabled={loading} id="search" placeholder="Type your message…" value={text} onChange={(e) => {setText(e.currentTarget.value)}}
-                  style={css("block w-full p-2 text-sm text-gray-900 border border-gray-300 rounded bg-white focus:ring-blue-500 focus:border-blue-500")}
+                  style={css(`block w-full p-2 text-sm ${getTextColor(props.style?.chat?.text, 200)} border ${getBorderColor(props.style?.chat?.main, 600)} rounded ${getBgColor(props.style?.chat?.bg, 50)} focus:ring-blue-500 focus:border-blue-500`)}
                   onKeyDown={ (e) => { if (e.key === "Enter") { outgoingMessage(text) } } }
                 />
                 <button type="submit" onClick={() => { outgoingMessage(text) }}
-                    style={css(`${getTextColor(props.style?.chat, 600)} absolute right-0 bottom-0 font-medium text-sm px-2 py-1.5`)}>
+                    style={css(`${getTextColor(props.style?.chat?.text, 600)} absolute right-0 bottom-0 font-medium text-sm px-2 py-1.5`)}>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" style={css("w-6 h-6")}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                   </svg>

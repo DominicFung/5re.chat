@@ -2831,15 +2831,20 @@ const tailwind = {
 
 export type Tailwind = keyof typeof tailwind
 
-export enum TailwindColor { 
-  black="black", white="white", slate="slate", gray="gray", zinc="zinc", neutral="neutral", 
-  stone="stone", red="red", orange="orange", amber="amber", yellow="yellow", lime="lime", 
-  green="green", emerald="emerald", teal="teal", cyan="cyan", sky="sky", blue="blue", indigo="indigo", 
-  violet="violet", purple="purple", fuchsia="fuchsia", pink="pink", rose="rose" 
-}
+// export enum TailwindColor { 
+//   black="black", white="white", slate="slate", gray="gray", zinc="zinc", neutral="neutral", 
+//   stone="stone", red="red", orange="orange", amber="amber", yellow="yellow", lime="lime", 
+//   green="green", emerald="emerald", teal="teal", cyan="cyan", sky="sky", blue="blue", indigo="indigo", 
+//   violet="violet", purple="purple", fuchsia="fuchsia", pink="pink", rose="rose" 
+// }
+
+export type TailwindColor = 
+  "black"|"white"|"slate"|"gray"|"zinc"|"neutral"|"stone"|"red"|"orange"|"amber"|"yellow"|"lime"|
+  "green"|"emerald"|"teal"|"cyan"|"sky"|"blue"|"indigo"|"violet"|"purple"|"fuchsia"|"pink"|"rose"
+
 export type TailwindShade = 50|100|200|300|400|500|600|700|800|900
 
-export interface TailwindBg { color: TailwindColor, shade?: TailwindShade }
+export interface TwColor { color: TailwindColor, shade?: TailwindShade }
 
 export function css(css: string): React.CSSProperties {
   let style = {
@@ -2858,7 +2863,7 @@ export function css(css: string): React.CSSProperties {
   return style
 }
 
-const _getColor = (f: "bg"|"text"|"border", dShade: TailwindShade, tw?: TailwindBg): string => {
+const _getColor = (f: "bg"|"text"|"border", dShade: TailwindShade, tw?: TwColor): string => {
   if (!tw) { return `${f}-slate-${dShade}`}
   
   let s = `${f}`
@@ -2872,10 +2877,14 @@ const _getColor = (f: "bg"|"text"|"border", dShade: TailwindShade, tw?: Tailwind
   else { return `${f}-slate-${dShade}` }
 }
 
-export const getBgColor = (tw?: TailwindBg, dShade: TailwindShade=500): string => {
+export const getBgColor = (tw?: TwColor, dShade: TailwindShade=500): string => {
   return _getColor('bg', dShade, tw )
 }
 
-export const getTextColor = (tw?: TailwindBg, dShade: TailwindShade=500): string => {
+export const getTextColor = (tw?: TwColor, dShade: TailwindShade=500): string => {
   return _getColor('text', dShade, tw)
+}
+
+export const getBorderColor = (tw?: TwColor, dShade: TailwindShade=500): string => {
+  return _getColor('border', dShade, tw)
 }
