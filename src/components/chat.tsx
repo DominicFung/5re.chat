@@ -216,7 +216,7 @@ export const FireChat = (props: FireChatProps) => {
             <label htmlFor="search" style={css("mb-2 text-sm font-medium text-gray-900 sr-only")}>Type your message…</label>
             <div style={css("relative")}>
                 <input type="search" disabled={loading} id="search" placeholder="Type your message…" value={text} onChange={(e) => {setText(e.currentTarget.value)}}
-                  style={css(`block w-full p-2 text-sm ${getTextColor(props.style?.chat?.text, 200)} border ${getBorderColor(props.style?.chat?.main, 600)} rounded ${getBgColor(props.style?.chat?.bg, 50)} focus:ring-blue-500 focus:border-blue-500`)}
+                  style={css(`block w-full p-2 text-sm ${getTextColor(props.style?.chat?.text, 900)} border ${getBorderColor(props.style?.chat?.main, 600)} rounded ${getBgColor(props.style?.chat?.bg, 50)} focus:ring-blue-500 focus:border-blue-500`)}
                   onKeyDown={ (e) => { if (e.key === "Enter") { outgoingMessage(text) } } }
                 />
                 <button type="submit" onClick={() => { outgoingMessage(text) }}
