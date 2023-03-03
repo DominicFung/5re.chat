@@ -3,8 +3,8 @@ import react from "@vitejs/plugin-react-swc";
 import dts from "vite-plugin-dts";
 import path from "path";
 
-import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
-import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
+// import { NodeGlobalsPolyfillPlugin } from '@esbuild-plugins/node-globals-polyfill';
+// import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill';
 
 export default defineConfig({
   define: {
@@ -34,17 +34,17 @@ export default defineConfig({
     emptyOutDir: true,
   },
   plugins: [react(), dts()],
-  optimizeDeps: {
-    esbuildOptions: {
-      define: {
-        global: 'globalThis'
-      },
-      plugins: [
-        NodeGlobalsPolyfillPlugin({
-          buffer: true
-        }),
-        NodeModulesPolyfillPlugin()
-      ]
-    }
-  }
+  // optimizeDeps: {
+  //   esbuildOptions: {
+  //     define: {
+  //       global: 'globalThis'
+  //     },
+  //     plugins: [
+  //       NodeGlobalsPolyfillPlugin({
+  //         buffer: true
+  //       }),
+  //       NodeModulesPolyfillPlugin()
+  //     ]
+  //   }
+  // }
 });
