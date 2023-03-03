@@ -141,7 +141,7 @@ export const FireChat = (props: FireChatProps) => {
     if (props.control) { _setOpen(props.control.open) }
   }, [props.control?.open])
 
-  return (<>
+  if (typeof window !== 'undefined')  return (<>
     { !props.control && 
       <div style={css("fixed bottom-5 right-5")}>
         <button onClick={() => { setOpen(true) }}
@@ -231,4 +231,5 @@ export const FireChat = (props: FireChatProps) => {
       </div>
     }
   </>)
+  return <></>
 }
